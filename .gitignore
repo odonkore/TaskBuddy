@@ -33,6 +33,21 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Firebase
+.firebase/
+*.jks
+*.keystore
+
+# macOS
+macos/Flutter/ephemeral/
+
+# VS Code
+.vscode/
+
+# Android Studio
+.gradle/
+local.properties
+
 # Symbolication related
 app.*.symbols
 
