@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:task_manager/task_list_screen.dart';
 //import 'package:google_sign_in/google_sign_in.dart';
 
 /// Main function that initializes Firebase and runs the app.
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
           titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
         ),
       ),
-      home: isLoggedIn ? const TaskListScreen() : const LoginScreen(),
+      home: isLoggedIn ? const DashboardScreen() : const LoginScreen(),
     );
   }
 }
@@ -69,7 +70,7 @@ Future<void> _createAccountWithEmailPassword() async {
     if (mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const TaskListScreen()),
+        MaterialPageRoute(builder: (context) => const DashboardScreen()),
       );
     }
   } catch (e) {
@@ -97,7 +98,7 @@ Future<void> _createAccountWithEmailPassword() async {
   void _skipSignIn() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const TaskListScreen()),
+      MaterialPageRoute(builder: (context) => const DashboardScreen()),
     );
   }
 
@@ -205,28 +206,6 @@ Future<void> _createAccountWithEmailPassword() async {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-
-/// Placeholder for TaskListScreen, the dashboard where tasks are displayed.
-/// Replace this with your actual task list implementation.
-class TaskListScreen extends StatelessWidget {
-  const TaskListScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your Tasks'),
-      ),
-      body: Center(
-        child: const Text(
-          'Task List Dashboard',
-          style: TextStyle(fontSize: 20, color: Colors.black),
         ),
       ),
     );
