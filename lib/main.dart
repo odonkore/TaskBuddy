@@ -2,7 +2,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:task_manager/task_list_screen.dart';
+import 'package:task_manager/dashboard_screen.dart';
 //import 'package:google_sign_in/google_sign_in.dart';
 
 /// Main function that initializes Firebase and runs the app.
