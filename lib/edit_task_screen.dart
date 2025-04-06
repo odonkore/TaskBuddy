@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class EditTaskScreen extends StatefulWidget {
   final String taskId;
@@ -15,17 +16,10 @@ class EditTaskScreenState extends State<EditTaskScreen> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dueDateController = TextEditingController();
 
-  final Color yellow = const Color(0xFFFFD700);
-  final Color black = const Color(0xFF000000);
-  final Color white = const Color(0xFFFFFFFF);
+  DateTime? _selectedDateTime;
+  bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadTaskData();
-  }
-
-  /// ✅ Load existing task details from Firestore and populate fields
+  /// ✅ Load task data from Firestore
   Future<void> _loadTaskData() async {
     DocumentSnapshot taskSnapshot = await FirebaseFirestore.instance
         .collection('tasks')
@@ -35,22 +29,42 @@ class EditTaskScreenState extends State<EditTaskScreen> {
     if (taskSnapshot.exists) {
       Map<String, dynamic> taskData =
           taskSnapshot.data() as Map<String, dynamic>;
-      _titleController.text = taskData['title'];
-      _descriptionController.text = taskData['description'];
-      _dueDateController.text = taskData['dueDate'];
+
+      setState(() {
+        _titleController.text = taskData['title'];
+        _descriptionController.text = taskData['description'];
+        _selectedDateTime = taskData['dueDate'].toDate();
+        _dueDateController.text = DateFormat('EEE, d MMMM, h a').format(_selectedDateTime!);
+      });
     }
   }
 
-  /// ✅ Update task in Firestore with new values
+  /// ✅ Update the task in Firestore
   Future<void> _updateTask() async {
+    if (_selectedDateTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a due date.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
+      Timestamp dueDateTimestamp = Timestamp.fromDate(_selectedDateTime!);
+
       await FirebaseFirestore.instance
           .collection('tasks')
           .doc(widget.taskId)
           .update({
         'title': _titleController.text,
         'description': _descriptionController.text,
-        'dueDate': _dueDateController.text,
+        'dueDate': dueDateTimestamp,
       });
 
       if (mounted) {
@@ -62,21 +76,65 @@ class EditTaskScreenState extends State<EditTaskScreen> {
           SnackBar(
             content: Text('Failed to update task: $e'),
             backgroundColor: Colors.redAccent,
-            behavior: SnackBarBehavior.floating,
           ),
         );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  /// ✅ Show date and time pickers with formatted output
+  Future<void> _selectDueDate(BuildContext context) async {
+    DateTime now = DateTime.now();
+
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null) {
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(now),
+      );
+
+      if (pickedTime != null) {
+        DateTime finalDate = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+        setState(() {
+          _selectedDateTime = finalDate;
+          _dueDateController.text =
+              DateFormat('EEE, d MMMM, h a').format(finalDate);
+        });
       }
     }
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadTaskData();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Edit Task'),
-        backgroundColor: yellow,
-        foregroundColor: black,
+        backgroundColor: Colors.yellow,
+        foregroundColor: Colors.black,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -84,55 +142,65 @@ class EditTaskScreenState extends State<EditTaskScreen> {
           children: [
             TextField(
               controller: _titleController,
-              style: TextStyle(color: black),
-              decoration: InputDecoration(
+              style: const TextStyle(color: Colors.black),
+              decoration: const InputDecoration(
                 labelText: 'Task Title',
-                labelStyle: TextStyle(color: black),
-                enabledBorder:
-                    OutlineInputBorder(borderSide: BorderSide(color: black)),
+                labelStyle: TextStyle(color: Colors.black),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: yellow, width: 2)),
+                  borderSide: BorderSide(color: Colors.yellow, width: 2),
+                ),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _descriptionController,
-              style: TextStyle(color: black),
-              decoration: InputDecoration(
+              style: const TextStyle(color: Colors.black),
+              decoration: const InputDecoration(
                 labelText: 'Description',
-                labelStyle: TextStyle(color: black),
-                enabledBorder:
-                    OutlineInputBorder(borderSide: BorderSide(color: black)),
+                labelStyle: TextStyle(color: Colors.black),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: yellow, width: 2)),
+                  borderSide: BorderSide(color: Colors.yellow, width: 2),
+                ),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _dueDateController,
-              style: TextStyle(color: black),
-              decoration: InputDecoration(
+              style: const TextStyle(color: Colors.black),
+              readOnly: true,
+              onTap: () => _selectDueDate(context),
+              decoration: const InputDecoration(
                 labelText: 'Due Date',
-                labelStyle: TextStyle(color: black),
-                enabledBorder:
-                    OutlineInputBorder(borderSide: BorderSide(color: black)),
+                labelStyle: TextStyle(color: Colors.black),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: yellow, width: 2)),
+                  borderSide: BorderSide(color: Colors.yellow, width: 2),
+                ),
               ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: _updateTask,
+              onPressed: _isLoading ? null : _updateTask,
               style: ElevatedButton.styleFrom(
-                backgroundColor: yellow,
-                foregroundColor: black,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                backgroundColor: Colors.yellow,
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              child: const Text('Update Task',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              child: _isLoading
+                  ? const CircularProgressIndicator(color: Colors.black)
+                  : const Text('Update Task',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         ),
