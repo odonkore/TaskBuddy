@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 class EditTaskScreen extends StatefulWidget {
   final String taskId;
 
-  // Constructor with named key parameter
-  EditTaskScreen({Key? key, required this.taskId}) : super(key: key);
+  const EditTaskScreen({super.key, required this.taskId});
 
   @override
   EditTaskScreenState createState() => EditTaskScreenState();
@@ -16,39 +15,56 @@ class EditTaskScreenState extends State<EditTaskScreen> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dueDateController = TextEditingController();
 
+  final Color yellow = const Color(0xFFFFD700);
+  final Color black = const Color(0xFF000000);
+  final Color white = const Color(0xFFFFFFFF);
+
   @override
   void initState() {
     super.initState();
     _loadTaskData();
   }
 
-  // Load task data from Firestore
+  /// ✅ Load existing task details from Firestore and populate fields
   Future<void> _loadTaskData() async {
-    DocumentSnapshot taskSnapshot = await FirebaseFirestore.instance.collection('tasks').doc(widget.taskId).get();
+    DocumentSnapshot taskSnapshot = await FirebaseFirestore.instance
+        .collection('tasks')
+        .doc(widget.taskId)
+        .get();
 
     if (taskSnapshot.exists) {
-      Map<String, dynamic> taskData = taskSnapshot.data() as Map<String, dynamic>;
+      Map<String, dynamic> taskData =
+          taskSnapshot.data() as Map<String, dynamic>;
       _titleController.text = taskData['title'];
       _descriptionController.text = taskData['description'];
       _dueDateController.text = taskData['dueDate'];
     }
   }
 
-  // Save updated task data to Firestore
+  /// ✅ Update task in Firestore with new values
   Future<void> _updateTask() async {
     try {
-      await FirebaseFirestore.instance.collection('tasks').doc(widget.taskId).update({
+      await FirebaseFirestore.instance
+          .collection('tasks')
+          .doc(widget.taskId)
+          .update({
         'title': _titleController.text,
         'description': _descriptionController.text,
         'dueDate': _dueDateController.text,
       });
 
       if (mounted) {
-        Navigator.pop(context); // Navigate back to task dashboard
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update task: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update task: $e'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       }
     }
   }
@@ -56,27 +72,67 @@ class EditTaskScreenState extends State<EditTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Task')),
+      backgroundColor: white,
+      appBar: AppBar(
+        title: const Text('Edit Task'),
+        backgroundColor: yellow,
+        foregroundColor: black,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
               controller: _titleController,
-              decoration: InputDecoration(labelText: 'Task Title'),
+              style: TextStyle(color: black),
+              decoration: InputDecoration(
+                labelText: 'Task Title',
+                labelStyle: TextStyle(color: black),
+                enabledBorder:
+                    OutlineInputBorder(borderSide: BorderSide(color: black)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: yellow, width: 2)),
+              ),
             ),
+            const SizedBox(height: 16),
             TextField(
               controller: _descriptionController,
-              decoration: InputDecoration(labelText: 'Description'),
+              style: TextStyle(color: black),
+              decoration: InputDecoration(
+                labelText: 'Description',
+                labelStyle: TextStyle(color: black),
+                enabledBorder:
+                    OutlineInputBorder(borderSide: BorderSide(color: black)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: yellow, width: 2)),
+              ),
             ),
+            const SizedBox(height: 16),
             TextField(
               controller: _dueDateController,
-              decoration: InputDecoration(labelText: 'Due Date'),
+              style: TextStyle(color: black),
+              decoration: InputDecoration(
+                labelText: 'Due Date',
+                labelStyle: TextStyle(color: black),
+                enabledBorder:
+                    OutlineInputBorder(borderSide: BorderSide(color: black)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: yellow, width: 2)),
+              ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _updateTask,
-              child: Text('Update Task'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: yellow,
+                foregroundColor: black,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              child: const Text('Update Task',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         ),

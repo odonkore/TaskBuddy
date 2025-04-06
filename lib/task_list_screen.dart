@@ -5,7 +5,7 @@ import 'package:task_manager/edit_task_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
-  
+
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
@@ -13,19 +13,31 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  final Color yellow = const Color(0xFFFFD700);
+  final Color black = const Color(0xFF000000);
+  final Color white = const Color(0xFFFFFFFF);
+
   /// ✅ Delete a task and show feedback if mounted
   Future<void> _deleteTask(String taskId) async {
     try {
       await _firestore.collection('tasks').doc(taskId).delete();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Task deleted successfully!')),
+          SnackBar(
+            content: const Text('Task deleted successfully!'),
+            backgroundColor: yellow,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete task: $e')),
+          SnackBar(
+            content: Text('Failed to delete task: $e'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     }
@@ -34,8 +46,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: white,
       appBar: AppBar(
         title: const Text('Task Dashboard'),
+        backgroundColor: yellow,
+        foregroundColor: black,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore.collection('tasks').snapshots(),
@@ -45,7 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: black)));
           }
 
           var tasks = snapshot.data!.docs;
@@ -54,30 +69,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
             itemCount: tasks.length,
             itemBuilder: (context, index) {
               var task = tasks[index];
-              return ListTile(
-                title: Text(task['title']),
-                subtitle: Text(task['description']),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Edit button
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EditTaskScreen(taskId: task.id),
-                          ),
-                        );
-                      },
-                    ),
-                    // Delete button
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => _deleteTask(task.id),
-                    ),
-                  ],
+              return Card(
+                color: white,
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                elevation: 3,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                child: ListTile(
+                  title: Text(
+                    task['title'],
+                    style: TextStyle(color: black, fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    task['description'],
+                    style: TextStyle(color: Colors.grey[800]),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit, color: black),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditTaskScreen(taskId: task.id),
+                            ),
+                          );
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red[700]),
+                        onPressed: () => _deleteTask(task.id),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -85,6 +110,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: black,
+        selectedItemColor: yellow,
+        unselectedItemColor: Colors.white70,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -109,6 +137,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: yellow,
+        foregroundColor: black,
         onPressed: () {
           Navigator.push(
             context,

@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  // Constructor with named key parameter
-  AddTaskScreen({Key? key}) : super(key: key);
+  const AddTaskScreen({super.key});
 
   @override
   AddTaskScreenState createState() => AddTaskScreenState();
@@ -14,7 +13,11 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dueDateController = TextEditingController();
 
-  // Add task to Firestore
+  final Color yellow = const Color(0xFFFFD700);
+  final Color black = const Color(0xFF000000);
+  final Color white = const Color(0xFFFFFFFF);
+
+  /// ✅ Add a task to Firestore with title, description, and due date
   Future<void> _addTask() async {
     try {
       await FirebaseFirestore.instance.collection('tasks').add({
@@ -23,14 +26,18 @@ class AddTaskScreenState extends State<AddTaskScreen> {
         'dueDate': _dueDateController.text,
       });
 
-      // Ensure the widget is still mounted before navigating or showing a Snackbar
       if (mounted) {
-        Navigator.pop(context); // Navigate back to task dashboard
+        Navigator.pop(context);
       }
     } catch (e) {
-      // Ensure the widget is still mounted before showing the Snackbar
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to add task: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to add task: $e'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       }
     }
   }
@@ -38,27 +45,72 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Task')),
+      backgroundColor: white,
+      appBar: AppBar(
+        title: const Text('Add Task'),
+        backgroundColor: yellow,
+        foregroundColor: black,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
               controller: _titleController,
-              decoration: InputDecoration(labelText: 'Task Title'),
+              style: TextStyle(color: black),
+              decoration: InputDecoration(
+                labelText: 'Task Title',
+                labelStyle: TextStyle(color: black),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: yellow, width: 2),
+                ),
+              ),
             ),
+            const SizedBox(height: 16),
             TextField(
               controller: _descriptionController,
-              decoration: InputDecoration(labelText: 'Description'),
+              style: TextStyle(color: black),
+              decoration: InputDecoration(
+                labelText: 'Description',
+                labelStyle: TextStyle(color: black),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: yellow, width: 2),
+                ),
+              ),
             ),
+            const SizedBox(height: 16),
             TextField(
               controller: _dueDateController,
-              decoration: InputDecoration(labelText: 'Due Date'),
+              style: TextStyle(color: black),
+              decoration: InputDecoration(
+                labelText: 'Due Date',
+                labelStyle: TextStyle(color: black),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: yellow, width: 2),
+                ),
+              ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _addTask,
-              child: Text('Add Task'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: yellow,
+                foregroundColor: black,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text('Add Task', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         ),
