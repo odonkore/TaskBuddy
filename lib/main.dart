@@ -3,12 +3,34 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:task_manager/dashboard_screen.dart';
+import 'package:task_manager/notification_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 //import 'package:google_sign_in/google_sign_in.dart';
+
+// creating the notification pluggin globally
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+
+Future<void> initNotifications() async {
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher'); // Make sure this icon exists
+
+  const InitializationSettings initializationSettings =
+      InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+}
+
 
 /// Main function that initializes Firebase and runs the app.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await NotificationService.initialize(); 
+  initNotifications();
   User? user = FirebaseAuth.instance.currentUser;
 runApp(MyApp(isLoggedIn: user != null));
 }

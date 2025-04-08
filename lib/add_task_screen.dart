@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:task_manager/notification_service.dart';
 import 'task_list_screen.dart'; // Make sure this import exists
 
 class AddTaskScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   /// ✅ Add new task to Firestore and go to TaskListScreen
   Future<void> _addTask() async {
+
     if (_titleController.text.isEmpty || _selectedDateTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -40,6 +42,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         'dueDate': Timestamp.fromDate(_selectedDateTime!),
         'createdAt': Timestamp.now(),
       });
+      // ✅ Schedule Notification After Task Is Saved
+if (_selectedDateTime != null) {
+  await NotificationService.scheduleNotification(
+    id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+    title: 'Task Reminder',
+    body: 'Your task "${_titleController.text}" is due soon!',
+    scheduledDate: _selectedDateTime!,
+  );
+}
+
 
       if (mounted) {
         // Navigate to TaskListScreen after task is added

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:task_manager/notification_service.dart';
 
 class EditTaskScreen extends StatefulWidget {
   final String taskId;
@@ -40,51 +41,60 @@ class EditTaskScreenState extends State<EditTaskScreen> {
   }
 
   /// ✅ Update the task in Firestore
-  Future<void> _updateTask() async {
-    if (_selectedDateTime == null) {
+Future<void> _updateTask() async {
+  if (_selectedDateTime == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please select a due date.'),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+    return;
+  }
+
+  setState(() {
+    _isLoading = true;
+  });
+
+  try {
+    Timestamp dueDateTimestamp = Timestamp.fromDate(_selectedDateTime!);
+
+    await FirebaseFirestore.instance
+        .collection('tasks')
+        .doc(widget.taskId)
+        .update({
+      'title': _titleController.text,
+      'description': _descriptionController.text,
+      'dueDate': dueDateTimestamp,
+    });
+
+    // ✅ Schedule notification after updating
+  await NotificationService.scheduleNotification(
+  id: widget.taskId.hashCode, // This might need to be a unique ID
+  title: _titleController.text,
+  body: _descriptionController.text,
+  scheduledDate: _selectedDateTime!,
+);
+
+
+    if (mounted) {
+      Navigator.pop(context);
+    }
+  } catch (e) {
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a due date.'),
+        SnackBar(
+          content: Text('Failed to update task: $e'),
           backgroundColor: Colors.redAccent,
         ),
       );
-      return;
     }
-
+  } finally {
     setState(() {
-      _isLoading = true;
+      _isLoading = false;
     });
-
-    try {
-      Timestamp dueDateTimestamp = Timestamp.fromDate(_selectedDateTime!);
-
-      await FirebaseFirestore.instance
-          .collection('tasks')
-          .doc(widget.taskId)
-          .update({
-        'title': _titleController.text,
-        'description': _descriptionController.text,
-        'dueDate': dueDateTimestamp,
-      });
-
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update task: $e'),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
-      }
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
+}
 
   /// ✅ Show date and time pickers with formatted output
   Future<void> _selectDueDate(BuildContext context) async {
@@ -99,6 +109,7 @@ class EditTaskScreenState extends State<EditTaskScreen> {
 
     if (pickedDate != null) {
       TimeOfDay? pickedTime = await showTimePicker(
+        // ignore: use_build_context_synchronously
         context: context,
         initialTime: TimeOfDay.fromDateTime(now),
       );

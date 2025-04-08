@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:task_manager/add_task_screen.dart';
 import 'package:task_manager/edit_task_screen.dart';
 
 class TaskListScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
   final Color black = const Color(0xFF000000);
   final Color white = const Color(0xFFFFFFFF);
 
-  /// ✅ Delete a task and show feedback if mounted
+  //Delete a task and show feedback if mounted
   Future<void> _deleteTask(String taskId) async {
     try {
       await _firestore.collection('tasks').doc(taskId).delete();
@@ -52,7 +53,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
         foregroundColor: black,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('tasks').snapshots(),
+        stream: _firestore
+            .collection('tasks')
+            .orderBy('dueDate')
+            .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -107,6 +111,18 @@ class _TaskListScreenState extends State<TaskListScreen> {
             },
           );
         },
+      ),
+ // floating action bar
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: yellow,
+        foregroundColor: black,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddTaskScreen()),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
