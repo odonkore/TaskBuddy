@@ -41,6 +41,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         'description': _descriptionController.text,
         'dueDate': Timestamp.fromDate(_selectedDateTime!),
         'createdAt': Timestamp.now(),
+        'isCompleted': false,
       });
       // ✅ Schedule Notification After Task Is Saved
 if (_selectedDateTime != null) {

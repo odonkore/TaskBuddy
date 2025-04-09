@@ -6,21 +6,20 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  // Initialize notifications
+  /// Initializes the notification plugin and time zone.
   static Future<void> initialize() async {
-    tz.initializeTimeZones();
-
-    const AndroidInitializationSettings androidSettings =
+    const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     const InitializationSettings settings = InitializationSettings(
-      android: androidSettings,
+      android: initializationSettingsAndroid,
     );
 
+    tz.initializeTimeZones(); // ✅ Important for scheduling with correct time zone
     await _notificationsPlugin.initialize(settings);
   }
 
-  // Schedule a notification
+  /// Schedules a notification for a specific time in the future.
   static Future<void> scheduleNotification({
     required int id,
     required String title,
@@ -34,14 +33,14 @@ class NotificationService {
       tz.TZDateTime.from(scheduledDate, tz.local),
       const NotificationDetails(
         android: AndroidNotificationDetails(
-          'task_channel_id',
+          'task_channel',
           'Task Notifications',
-          channelDescription: 'Reminders for your tasks',
+          channelDescription: 'Notification channel for task reminders',
           importance: Importance.max,
           priority: Priority.high,
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, // replacement for deprecated `androidAllowWhileIdle`
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );

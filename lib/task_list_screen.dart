@@ -48,7 +48,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
     return Scaffold(
       backgroundColor: white,
       appBar: AppBar(
-        title: const Text('Task Dashboard'),
+        title: const Text('My Tasks'),
         backgroundColor: yellow,
         foregroundColor: black,
       ),
