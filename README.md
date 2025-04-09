@@ -13,7 +13,6 @@ How to Use:
 
 The purpose of this software is to provide a user-friendly task management app that helps users organize and track their tasks, while enhancing my skills in software development. It integrates with a cloud database for real-time synchronization and secure access to personal task data.
 
-{Provide a link to your YouTube demonstration. It should be a 4-5 minute demo of the software running, a walkthrough of the code, and a view of the cloud database.}
 
 [Software Demo Video](http://youtube.link.goes.here)
 
@@ -53,6 +52,5 @@ createdAt: The timestamp when the task was created (timestamp).
 - Realtime notification when task is due.
 - Group tasks into categories
 - Group task on dashboards into today, upcoming, past, etc.
-- 
 
 Users will be able to simply swipe to delete a task without having to navigate to the task list screen. Tasks will be grouped by category, thus giving the user an option to choose a category for a task. On the dashboad, the tasks displayed will be grouped based on the condition whether the task is due today, past, or upcoming. Users will also be given the option to add priority level to each task, with that in place, high proirity tasks will displayed at the top and in red. Users will have option to receive notification when task is due.
