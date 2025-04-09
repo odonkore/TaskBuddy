@@ -50,8 +50,9 @@ createdAt: The timestamp when the task was created (timestamp).
 
 - Swipe to delete feature
 - Priority feature
+- Realtime notification when task is due.
 - Group tasks into categories
 - Group task on dashboards into today, upcoming, past, etc.
 - 
 
-Users will be able to simply swipe to delete a task without having to navigate to the task list screen. Tasks will be grouped by category, thus giving the user an option to choose a category for a task. On the dashboad, the tasks displayed will be grouped based on the condition whether the task is due today, past, or upcoming. Users will also be given the option to add priority level to each task, with that in place, high proirity tasks will displayed at the top and in red.
+Users will be able to simply swipe to delete a task without having to navigate to the task list screen. Tasks will be grouped by category, thus giving the user an option to choose a category for a task. On the dashboad, the tasks displayed will be grouped based on the condition whether the task is due today, past, or upcoming. Users will also be given the option to add priority level to each task, with that in place, high proirity tasks will displayed at the top and in red. Users will have option to receive notification when task is due.
